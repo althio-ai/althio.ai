@@ -180,10 +180,10 @@
     color: var(--ink-soft); text-shadow: none;
     max-width: 44ch; margin: 0 auto;
   }
-  .ph1 { opacity: clamp(0, calc((0.30 - var(--p)) * 6), 1); }
-  .ph2 { opacity: min(clamp(0, calc((var(--p) - 0.34) * 10), 1), clamp(0, calc((0.62 - var(--p)) * 10), 1)); }
+  .ph1 { opacity: clamp(0, calc((0.35 - var(--p)) * 6), 1); }
+  .ph2 { opacity: min(clamp(0, calc((var(--p) - 0.40) * 10), 1), clamp(0, calc((0.68 - var(--p)) * 10), 1)); }
   .ph3 {
-    opacity: clamp(0, calc((var(--p) - 0.70) * 8), 1);
+    opacity: clamp(0, calc((var(--p) - 0.76) * 8), 1);
     color: #E9EDF8;
     text-shadow: 0 1px 30px rgba(8, 12, 28, 0.9), 0 0 12px rgba(8, 12, 28, 0.5);
   }
@@ -567,7 +567,7 @@
     DOTS.push({
       x: 0.04 + rng() * 0.92,
       y: 0.06 + rng() * 0.88,
-      t: i < 8 ? 0 : 0.30 + rng() * 0.36,
+      t: i < 8 ? 0.60 : 0.64 + rng() * 0.26,
       hour: i < 8,
       r: i < 8 ? 1.7 : 0.6 + rng() * 0.9,
       blue: rng() < 0.72,
@@ -583,7 +583,7 @@
       const d = dx * dx + dy * dy;
       if (d < bd) { bd = d; best = j; }
     }
-    if (bd < 0.02) LINES.push({ a: Math.min(i, best), b: Math.max(i, best), t: 0.55 + rng() * 0.3 });
+    if (bd < 0.02) LINES.push({ a: Math.min(i, best), b: Math.max(i, best), t: 0.78 + rng() * 0.16 });
   }
   const seen = new Set();
   const UNIQ = LINES.filter(l => { const k = l.a + '-' + l.b; if (seen.has(k)) return false; seen.add(k); return true; });
@@ -614,7 +614,9 @@
     }
     const near = [];
     for (const d of DOTS) {
-      const a0 = d.hour ? 0.65 : cl((sp - d.t) * 8) * (0.45 + 0.25 * nf);
+      const a0 = d.hour
+        ? 0.7 * cl((sp - 0.60) * 5)
+        : cl((sp - d.t) * 8) * (0.45 + 0.25 * nf);
       if (a0 <= 0) continue;
       const px = d.x * w, py = d.y * h;
       const dist = Math.hypot(px - hx, py - hy);
