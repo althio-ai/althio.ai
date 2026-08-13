@@ -535,19 +535,26 @@
   }
 
   // Scroll-driven sky scene: zoom to fullscreen, then reveal the week.
+  // Scroll position sets a target; --p eases toward it so wheel steps glide.
   const scene = document.querySelector('.skyscene');
-  let sp = 0;
-  function sceneP() {
+  let sp = 0, spTarget = 0;
+  function sceneTarget() {
     const r = scene.getBoundingClientRect();
     const total = r.height - innerHeight || 1;
-    sp = Math.min(1, Math.max(0, -r.top / total));
-    scene.style.setProperty('--p', sp.toFixed(4));
+    spTarget = Math.min(1, Math.max(0, -r.top / total));
   }
-  if (calm) { sp = 1; scene.style.setProperty('--p', '1'); }
+  if (calm) { sp = spTarget = 1; scene.style.setProperty('--p', '1'); }
   else {
-    addEventListener('scroll', sceneP, { passive: true });
-    addEventListener('resize', sceneP);
-    sceneP();
+    addEventListener('scroll', sceneTarget, { passive: true });
+    addEventListener('resize', sceneTarget);
+    sceneTarget();
+    sp = spTarget;
+    (function ease() {
+      sp += (spTarget - sp) * 0.09;
+      if (Math.abs(spTarget - sp) < 0.0004) sp = spTarget;
+      scene.style.setProperty('--p', sp.toFixed(4));
+      requestAnimationFrame(ease);
+    })();
   }
 
   // Constellation: a handful of dots is the hour; the rest is the week.
