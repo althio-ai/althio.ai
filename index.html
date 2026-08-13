@@ -595,10 +595,13 @@
   const rng = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
   const DOTS = [];
   for (let i = 0; i < 150; i++) {
+    const y = 0.05 + rng() * 0.9;
+    // lower stars arrive later, once the day's clouds have dissolved
+    const lag = y * 0.1;
     DOTS.push({
       x: 0.04 + rng() * 0.92,
-      y: 0.05 + rng() * 0.58,
-      t: i < 8 ? 0.60 : 0.64 + rng() * 0.26,
+      y,
+      t: (i < 8 ? 0.60 : 0.64 + rng() * 0.22) + lag,
       hour: i < 8,
       r: i < 8 ? 1.7 : 0.6 + rng() * 0.9,
       blue: rng() < 0.72,
