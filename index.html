@@ -21,6 +21,8 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
+  /* anchored sections must clear the fixed nav when jumped to */
+  [id] { scroll-margin-top: 90px; }
   body {
     background: var(--cream);
     color: var(--ink);
@@ -405,6 +407,14 @@
     .trustbar .tl-gdpr { height: 86px; margin: -10px 0; }
     .brief-card header { flex-direction: column; gap: 2px; }
     .week .day { font-size: 11px; }
+    /* phones: the sky is a plain full-bleed section, no pin/zoom card —
+       same static treatment the reduced-motion block already uses */
+    .skyscene { height: auto; }
+    .skysticky { position: static; height: auto; }
+    .skypanel { width: 100%; height: 80svh; border-radius: 0; box-shadow: none; }
+    /* small cards crop the cta image to its pale band; anchor to the clouds */
+    .cta { background-position: center bottom; }
+    .foot a { margin-left: 0; margin-right: 18px; }
   }
 </style>
 
@@ -637,7 +647,9 @@
     const total = r.height - innerHeight || 1;
     spTarget = Math.min(1, Math.max(0, -r.top / total));
   }
-  if (calm) { sp = spTarget = 1; scene.style.setProperty('--p', '1'); }
+  // Phones get the static end state, same as reduced motion: the scene is a
+  // plain section there, so scroll must not drive the panel.
+  if (calm || innerWidth <= 860) { sp = spTarget = 1; scene.style.setProperty('--p', '1'); }
   else {
     addEventListener('scroll', sceneTarget, { passive: true });
     addEventListener('resize', sceneTarget);
