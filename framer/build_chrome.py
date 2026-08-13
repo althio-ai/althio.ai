@@ -19,19 +19,24 @@ css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
 
 # The nav links the whole site shares. "How it works" points back to the home
 # page anchor so it still works from a sub-page.
-LOGO_INK = "https://framerusercontent.com/images/GANgHGvzvesIJ9MX0o9lrMw2Y0.png"
-
-NAV_MARKUP = f"""
+# The five page links sit in their own wrapper so phones can turn just that
+# group into a dropdown while the demo button stays visible in the bar.
+NAV_MARKUP = """
 <nav id="nav">
   <div class="wrap nav-inner">
-    <a class="logo" href="/" aria-label="Althio home"><img src="{LOGO_INK}" alt="Althio" width="66" height="21"></a>
+    <a class="logo" href="/">Althio</a>
     <div class="nav-links">
-      <a href="/#how">How it works</a>
-      <a href="/for-clinicians">For clinicians</a>
-      <a href="/safety">Safety</a>
-      <a href="/research">Research</a>
-      <a href="/blog">Journal</a>
+      <div class="nav-main" id="navmenu">
+        <a href="/#how">How it works</a>
+        <a href="/for-clinicians">For clinicians</a>
+        <a href="/safety">Safety</a>
+        <a href="/research">Research</a>
+        <a href="/blog">Journal</a>
+      </div>
       <a class="btn" href="/demo">Request a demo <span class="arw">&rarr;</span></a>
+      <button class="navtoggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navmenu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
 </nav>
@@ -164,6 +169,35 @@ NAV_EFFECT = """        // Same behaviour as the homepage: the bar frosts once t
             const onScroll = () => bar.classList.toggle("scrolled", window.scrollY > 8)
             onScroll()
             window.addEventListener("scroll", onScroll, { passive: true, signal })
+        }
+
+        // Phone menu.
+        const toggle = root.querySelector(".navtoggle")
+        const menu = root.querySelector(".nav-main")
+        if (bar && toggle && menu) {
+            const setOpen = (open) => {
+                bar.classList.toggle("menu-open", open)
+                toggle.setAttribute("aria-expanded", String(open))
+                toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu")
+            }
+            toggle.addEventListener("click", (e) => {
+                e.stopPropagation()
+                setOpen(!bar.classList.contains("menu-open"))
+            }, { signal })
+            // Following a link should not leave the menu hanging open behind it.
+            menu.addEventListener("click", (e) => {
+                if (e.target.closest("a")) setOpen(false)
+            }, { signal })
+            document.addEventListener("click", (e) => {
+                if (bar.classList.contains("menu-open") && !bar.contains(e.target)) setOpen(false)
+            }, { signal })
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") setOpen(false)
+            }, { signal })
+            // Rotating to landscape can cross the breakpoint with the menu open.
+            window.addEventListener("resize", () => {
+                if (window.innerWidth > 720) setOpen(false)
+            }, { signal })
         }"""
 
 nav_css = extract(NAV_KEEP, "#althio-nav")
@@ -187,13 +221,53 @@ foot_css = SKY_VAR.sub("", foot_css)
 # phones need the collapse.
 nav_css = nav_css.replace("@media (max-width: 860px)", "@media (max-width: 720px)")
 
-# The wordmark replaces the text logo. `line-height: 0` stops the inline image
-# adding a descender gap that would push the bar off centre.
-nav_css += (
-    "\n#althio-nav .logo { display: inline-flex; align-items: center; line-height: 0; }"
-    "\n#althio-nav .logo img { height: 27px; width: auto; display: block; }"
-    "\n@media (max-width: 720px) {\n  #althio-nav .logo img { height: 23px; }\n}"
+# That media block only hid the links. The dropdown below replaces it, so the
+# blanket hide has to go or the menu would open onto nothing.
+nav_css = nav_css.replace(
+    "  #althio-nav .nav-links a:not(.btn) { display: none; }\n", ""
 )
+
+nav_css += """
+#althio-nav .nav-main { display: flex; align-items: center; gap: 28px; }
+#althio-nav .navtoggle {
+  display: none;
+  background: none; border: 0; cursor: pointer;
+  padding: 8px 4px; margin-left: 2px;
+  flex-direction: column; gap: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+#althio-nav .navtoggle span {
+  display: block; width: 19px; height: 1.5px;
+  background: var(--ink); border-radius: 2px;
+  transition: transform .28s cubic-bezier(.22,.9,.3,1), opacity .18s ease;
+}
+#althio-nav nav.menu-open .navtoggle span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+#althio-nav nav.menu-open .navtoggle span:nth-child(2) { opacity: 0; }
+#althio-nav nav.menu-open .navtoggle span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+#althio-nav .navtoggle:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+@media (max-width: 720px) {
+  #althio-nav .navtoggle { display: flex; }
+  /* nav is fixed, so this positions against the bar and spans the full width */
+  #althio-nav .nav-main {
+    position: absolute; top: 100%; left: 0; right: 0;
+    display: none;
+    flex-direction: column; align-items: stretch; gap: 0;
+    padding: 4px 28px 20px;
+    background: color-mix(in srgb, var(--cream) 94%, transparent);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--line);
+  }
+  #althio-nav nav.menu-open .nav-main { display: flex; }
+  #althio-nav .nav-main a {
+    padding: 14px 0; font-size: 17px;
+    border-top: 1px solid var(--line);
+  }
+  #althio-nav .nav-main a:first-child { border-top: none; }
+}
+"""
+
 
 # Framer's fixed "Made in Framer" badge sits over the viewport's bottom-right
 # corner and hides the footer links on phones. Clear it (Framer-only concern,

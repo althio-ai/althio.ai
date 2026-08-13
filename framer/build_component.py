@@ -86,6 +86,22 @@ body = re.sub(r"<footer>.*?</footer>", "", body, flags=re.S)
 if len(body) == before:
     raise SystemExit("nav/footer not found in landing markup")
 
+# AlthioNav owns the bar now, so the landing script must not also wire it.
+# Both scripts ran against the same #nav: the scroll handler was merely
+# redundant, but two menu toggles on one tap cancelled each other and the
+# phone menu never appeared.
+nav_js = [
+    r"  const nav = document\.getElementById\('nav'\);\n"
+    r"  addEventListener\('scroll'[^\n]*\n",
+    r"\n  // Phone menu\.\n(?:.*?\n)*?  \}\n",
+]
+for pattern in nav_js:
+    script, n = re.subn(pattern, "", script, count=1)
+    if not n:
+        raise SystemExit(f"nav script block not found: {pattern[:40]}")
+if "getElementById('nav')" in script or "navtoggle" in script:
+    raise SystemExit("nav wiring still present in landing script")
+
 # The demo request now goes to a real form page instead of an email client,
 # and the hero button goes there directly instead of scrolling to the CTA.
 body = body.replace('href="mailto:hello@althio.ai"', 'href="/demo"')
