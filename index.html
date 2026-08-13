@@ -586,6 +586,41 @@
   const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine = matchMedia('(pointer: fine)').matches;
 
+  // Desktop-only momentum scrolling. Wheel drives a target the page eases
+  // toward; native scroll position still moves, so sticky/fixed keep working.
+  // ponytail: wheel only — touch and trackpad-as-touch keep the OS feel.
+  if (fine && !calm && innerWidth > 860) {
+    // our glide owns the animation, so native smooth scrolling must be off
+    document.documentElement.style.scrollBehavior = 'auto';
+    let target = scrollY, pos = scrollY, running = false;
+    const maxY = () => document.documentElement.scrollHeight - innerHeight;
+    const glideTo = (y) => {
+      target = Math.max(0, Math.min(maxY(), y));
+      if (!running) { running = true; pos = scrollY; requestAnimationFrame(glide); }
+    };
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const el = document.querySelector(a.getAttribute('href'));
+        if (!el) return;
+        e.preventDefault();
+        glideTo(el.getBoundingClientRect().top + scrollY);
+      });
+    });
+    addEventListener('wheel', e => {
+      if (e.ctrlKey) return;
+      e.preventDefault();
+      const d = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * innerHeight : e.deltaY;
+      glideTo(target + d);
+    }, { passive: false });
+    addEventListener('scroll', () => { if (!running) target = pos = scrollY; }, { passive: true });
+    function glide() {
+      pos += (target - pos) * 0.11;
+      if (Math.abs(target - pos) < 0.4) { pos = target; running = false; }
+      scrollTo(0, pos);
+      if (running) requestAnimationFrame(glide);
+    }
+  }
+
   // Cursor position feeds the constellation: nearby stars brighten,
   // and thin lines reach from the hand to the closest moments.
   let pmx = -1e4, pmy = -1e4;
@@ -609,7 +644,7 @@
     sceneTarget();
     sp = spTarget;
     (function ease() {
-      sp += (spTarget - sp) * 0.09;
+      sp += (spTarget - sp) * 0.16;
       if (Math.abs(spTarget - sp) < 0.0004) sp = spTarget;
       scene.style.setProperty('--p', sp.toFixed(4));
       requestAnimationFrame(ease);
