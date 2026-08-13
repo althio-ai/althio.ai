@@ -19,10 +19,12 @@ css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
 
 # The nav links the whole site shares. "How it works" points back to the home
 # page anchor so it still works from a sub-page.
-NAV_MARKUP = """
+LOGO_INK = "https://framerusercontent.com/images/GANgHGvzvesIJ9MX0o9lrMw2Y0.png"
+
+NAV_MARKUP = f"""
 <nav id="nav">
   <div class="wrap nav-inner">
-    <a class="logo" href="/">Althio</a>
+    <a class="logo" href="/" aria-label="Althio home"><img src="{LOGO_INK}" alt="Althio" width="66" height="21"></a>
     <div class="nav-links">
       <a href="/#how">How it works</a>
       <a href="/for-clinicians">For clinicians</a>
@@ -184,6 +186,14 @@ foot_css = SKY_VAR.sub("", foot_css)
 # site but drops every link on an 810px tablet. Tablets have the room; only
 # phones need the collapse.
 nav_css = nav_css.replace("@media (max-width: 860px)", "@media (max-width: 720px)")
+
+# The wordmark replaces the text logo. `line-height: 0` stops the inline image
+# adding a descender gap that would push the bar off centre.
+nav_css += (
+    "\n#althio-nav .logo { display: inline-flex; align-items: center; line-height: 0; }"
+    "\n#althio-nav .logo img { height: 27px; width: auto; display: block; }"
+    "\n@media (max-width: 720px) {\n  #althio-nav .logo img { height: 23px; }\n}"
+)
 
 # Framer's fixed "Made in Framer" badge sits over the viewport's bottom-right
 # corner and hides the footer links on phones. Clear it (Framer-only concern,

@@ -16,6 +16,8 @@ SRC = pathlib.Path("/Users/macmini/althio.ai/.claude/worktrees/scroll-scene/inde
 OUT = pathlib.Path("/Users/macmini/.claude/jobs/e2e0ba54/tmp/AlthioLanding.tsx")
 ROOT = "#althio-root"
 
+LOGO_INK = "https://framerusercontent.com/images/GANgHGvzvesIJ9MX0o9lrMw2Y0.png"
+
 UPLOADED = {
     "sky-day": "https://framerusercontent.com/images/YTgwKd8dFTqttTosKcOOtZXfF7k.jpg",
     "sky-night": "https://framerusercontent.com/images/gsLH8HuBy8l4orvqoXweyyNPWVA.jpg",
@@ -44,8 +46,23 @@ def swap_images(text: str) -> tuple[str, int]:
         if name in UPLOADED:
             mapping[uri] = UPLOADED[name]
 
-    # Inline <img> data URIs, in document order -> asset-01..asset-04
-    inline = [u for u in re.findall(r'src="(data:image/[a-z+]+;base64,[A-Za-z0-9+/=]+)"', html)]
+    # The wordmark is matched by its alt text, not by position: mapping inline
+    # images purely in document order breaks the moment another <img> is added
+    # ahead of the compliance logos.
+    logo = re.search(
+        r'<img src="(data:image/[a-z+]+;base64,[A-Za-z0-9+/=]+)" alt="Althio"', html
+    )
+    if logo:
+        mapping[logo.group(1)] = LOGO_INK
+
+    # Remaining inline <img> data URIs, in document order -> asset-01..asset-04
+    inline = [
+        u
+        for u in re.findall(r'src="(data:image/[a-z+]+;base64,[A-Za-z0-9+/=]+)"', html)
+        if u not in mapping
+    ]
+    if len(inline) != 4:
+        raise SystemExit(f"expected 4 compliance images, found {len(inline)}")
     for i, uri in enumerate(inline, start=1):
         mapping.setdefault(uri, UPLOADED[f"asset-{i:02d}"])
 
