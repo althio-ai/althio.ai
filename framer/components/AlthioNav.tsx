@@ -42,10 +42,20 @@ const CSS = `
   border-bottom: 1px solid transparent;
   transition: background .3s, border-color .3s;
 }
-/* Opaque, not frosted. A backdrop-filter here would also make the bar the
-   containing block for its fixed children, which collapsed the open menu. */
+/* Frosted, carefully: the blur lives on a ::before layer, never on the bar
+   itself — a backdrop-filter on the <nav> would make it the containing
+   block for its fixed children and collapse the open menu. */
+.althio-nav nav::before {
+  content: "";
+  position: absolute; inset: 0; z-index: -1;
+  background: rgba(251, 247, 240, 0.68);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  backdrop-filter: blur(16px) saturate(1.5);
+  opacity: 0;
+  transition: opacity .3s;
+}
+.althio-nav nav.scrolled::before, .althio-nav nav.open::before { opacity: 1; }
 .althio-nav nav.scrolled, .althio-nav nav.open {
-  background: var(--cream);
   border-bottom-color: var(--line);
 }
 .althio-nav .inner {
@@ -152,7 +162,11 @@ const CSS = `
     flex-direction: column; align-items: stretch; gap: 0;
     padding: 8px 20px calc(24px + env(safe-area-inset-bottom));
     overflow-y: auto;
-    background: var(--cream);
+    /* The sheet is its own fixed element, so a backdrop-filter directly on
+       it is safe — it contains no further fixed descendants. */
+    background: rgba(251, 247, 240, 0.88);
+    -webkit-backdrop-filter: blur(22px) saturate(1.5);
+    backdrop-filter: blur(22px) saturate(1.5);
     opacity: 0;
     visibility: hidden;
     transition: opacity .3s ease, visibility 0s linear .3s;
