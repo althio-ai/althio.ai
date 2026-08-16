@@ -120,10 +120,60 @@ const CSS = `
   color: var(--ink-soft);
   max-width: 44ch;
 }
-.althio-triad .panel .view { animation: althio-triad-in .45s cubic-bezier(.22,.61,.36,1) both; }
+/* The stage keeps one fixed height for every state, so swapping copy can
+   never shove the legend below it — that was the hover jitter. */
+.althio-triad .panel .view {
+  min-height: 264px;
+  animation: althio-triad-in .45s cubic-bezier(.22,.61,.36,1) both;
+}
 @keyframes althio-triad-in {
   from { opacity: 0; transform: translateY(8px); filter: blur(5px); }
   to { opacity: 1; transform: none; filter: blur(0); }
+}
+
+/* The flow strip: the active channel restated as two names on a hairline
+   lane, with a small light actually travelling it. */
+.althio-triad .strip {
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 26px;
+  height: 24px;
+}
+.althio-triad .strip .end {
+  font-family: var(--display);
+  font-size: 15px;
+  color: var(--ink);
+  white-space: nowrap;
+  opacity: 0.85;
+}
+.althio-triad .strip .lane {
+  position: relative;
+  flex: 1;
+  max-width: 220px;
+  height: 1px;
+  background: color-mix(in srgb, var(--sw, rgba(35,32,28,0.3)) 55%, transparent);
+}
+.althio-triad .strip .runner {
+  position: absolute; top: -2.5px; left: 0;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--sw, rgba(35,32,28,0.4));
+}
+.althio-triad .strip[data-mode="both"] .runner { animation: althio-run-both 3.4s ease-in-out infinite; }
+.althio-triad .strip[data-mode="one"] .runner { animation: althio-run-one 2.6s ease-in-out infinite; }
+/* Roles and the resting view get a quiet three-dot lane instead. */
+.althio-triad .strip .mark {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--ink-faint);
+  flex-shrink: 0;
+}
+@keyframes althio-run-both {
+  0%, 100% { left: 0; }
+  50% { left: calc(100% - 6px); }
+}
+@keyframes althio-run-one {
+  0% { left: 0; opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { left: calc(100% - 6px); opacity: 0; }
 }
 
 /* Legend rows double as the touch-friendly way in. */
@@ -180,6 +230,7 @@ const CSS = `
   .althio-triad .panel .view { animation: none; }
   .althio-triad .legend button { transition: color .25s ease; }
   .althio-triad .flow, .althio-triad .amb { display: none; }
+  .althio-triad .strip .runner { animation: none; left: calc(50% - 3px); }
 }
 
 @media (max-width: 1199px) {
@@ -188,6 +239,7 @@ const CSS = `
   .althio-triad .split { grid-template-columns: 1fr; gap: 36px; }
   .althio-triad .diagram { max-width: 620px; margin: 0 auto; }
   .althio-triad .panel { min-height: 0; }
+  .althio-triad .panel .view { min-height: 236px; }
   .althio-triad .panel .body { max-width: none; }
 }
 
@@ -206,6 +258,12 @@ const CSS = `
   .althio-triad h2, .althio-triad .panel h3 { font-size: 2.778vw; }
   .althio-triad .panel .body { margin-top: 1.111vw; }
   .althio-triad .panel { min-height: 17vw; }
+  .althio-triad .panel .view { min-height: 18.3vw; }
+  .althio-triad .strip { margin-top: 1.806vw; height: 1.667vw; gap: 0.972vw; }
+  .althio-triad .strip .end { font-size: 1.042vw; }
+  .althio-triad .strip .lane { max-width: 15.278vw; }
+  .althio-triad .strip .runner { width: 0.417vw; height: 0.417vw; top: -0.174vw; }
+  .althio-triad .strip .mark { width: 0.347vw; height: 0.347vw; }
   .althio-triad .legend { margin-top: 2.083vw; }
   .althio-triad .legend button { padding: 0.694vw 0.139vw; font-size: 0.938vw; gap: 0.694vw; }
   .althio-triad .legend button:hover, .althio-triad .legend button.on { padding-left: 0.556vw; }
@@ -233,10 +291,18 @@ type Key =
     | "careplan"
     | "memory"
 
-const CONTENT: Record<
-    Key,
-    { eyebrow: string; heading: string; body: string; tone?: string }
-> = {
+interface View {
+    eyebrow: string
+    heading: string
+    body: string
+    tone?: string
+    /* The flow strip under the copy: endpoints and how traffic moves. */
+    from?: string
+    to?: string
+    mode?: "both" | "one" | "loop"
+}
+
+const CONTENT: Record<Key, View> = {
     default: {
         eyebrow: "The care loop",
         heading: "Three of us. One loop of care.",
@@ -246,46 +312,64 @@ const CONTENT: Record<
         eyebrow: "The client",
         heading: "Supported all week.",
         body: "Checks in the moment something surfaces, practices between sessions, and is never alone at 3 am.",
+        from: "Client",
     },
     clinician: {
         eyebrow: "The clinician",
         heading: "Always the author of care.",
         body: "Writes the plan, reads the brief, decides what changes. Every session starts informed.",
+        from: "Clinician",
     },
     althio: {
         eyebrow: "Althio AI",
         heading: "The context layer between.",
         body: "Listens through the week, follows the plan, and surfaces what matters — it never diagnoses, and it is never alone with risk.",
+        from: "Althio AI",
     },
     checkin: {
         eyebrow: "Client ⇄ Althio",
         heading: "Any-hour check-ins.",
         body: "The client talks when it matters — not five days later. Althio answers, and remembers.",
         tone: TONE.checkin,
+        from: "Client",
+        to: "Althio",
+        mode: "both",
     },
     session: {
         eyebrow: "Clinician ⇄ Client",
         heading: "The hour stays human.",
         body: "Therapy is unchanged: one hour, two people. Althio never sits in the room.",
         tone: TONE.session,
+        from: "Clinician",
+        to: "Client",
+        mode: "both",
     },
     brief: {
         eyebrow: "Althio → Clinician",
         heading: "The morning brief.",
         body: "Patterns, changes and flags arrive before each session — a forty-second read, not a transcript.",
         tone: TONE.brief,
+        from: "Althio",
+        to: "Clinician",
+        mode: "one",
     },
     careplan: {
         eyebrow: "Clinician → Althio",
         heading: "The care plan leads.",
         body: "Althio works inside the plan the clinician writes — and can be changed or paused at any point in care.",
         tone: TONE.careplan,
+        from: "Clinician",
+        to: "Althio",
+        mode: "one",
     },
     memory: {
         eyebrow: "Althio ⟲ Althio",
         heading: "Context that compounds.",
         body: "Each week adds to the picture: what helped, what recurred, what to watch before the next session.",
         tone: TONE.memory,
+        from: "This week",
+        to: "Next week",
+        mode: "one",
     },
 }
 
@@ -518,16 +602,45 @@ export default function AlthioTriad(props: AlthioTriadProps) {
                         </svg>
                     </div>
                     <div className="panel rv" style={{ "--i": 1 } as CSSProperties}>
-                        <div className="view" key={active}>
-                            <p
-                                className="eyebrow"
-                                style={{ "--sw": view.tone ?? "rgba(35,32,28,0.3)" } as CSSProperties}
-                            >
+                        <div
+                            className="view"
+                            key={active}
+                            style={{ "--sw": view.tone ?? "rgba(35,32,28,0.3)" } as CSSProperties}
+                        >
+                            <p className="eyebrow">
                                 <span className="swatch" aria-hidden="true" />
                                 {view.eyebrow}
                             </p>
                             <h3>{view.heading}</h3>
                             <p className="body">{view.body}</p>
+                            <div
+                                className="strip"
+                                data-mode={view.mode ?? "none"}
+                                aria-hidden="true"
+                            >
+                                {view.mode ? (
+                                    <>
+                                        <span className="end">{view.from}</span>
+                                        <span className="lane">
+                                            <span className="runner" />
+                                        </span>
+                                        <span className="end">{view.to}</span>
+                                    </>
+                                ) : view.from ? (
+                                    <>
+                                        <span className="mark" />
+                                        <span className="end">{view.from}</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span className="end">Client</span>
+                                        <span className="mark" />
+                                        <span className="end">Clinician</span>
+                                        <span className="mark" />
+                                        <span className="end">Althio AI</span>
+                                    </>
+                                )}
+                            </div>
                         </div>
                         <ul className="legend" onMouseLeave={leave}>
                             {LEGEND.map((item) => (
