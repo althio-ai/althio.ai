@@ -82,26 +82,29 @@ const CSS = `
     0
   );
 }
+/* Tinted, not white: on the cream page a white cloud disappears, so each
+   layer carries one of the brand pastels at a density the wash never
+   reaches. */
 .althio-hero .cloudw.a .cloud {
-  width: 540px; height: 190px;
-  --dx: 30px; --dy: 20px;
-  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 72%);
-  filter: blur(26px);
-  opacity: 0.8;
+  width: 560px; height: 210px;
+  --dx: 34px; --dy: 22px;
+  background: radial-gradient(closest-side, rgba(169, 199, 233, 0.8), rgba(169, 199, 233, 0) 74%);
+  filter: blur(28px);
+  opacity: 0.9;
 }
 .althio-hero .cloudw.b .cloud {
-  width: 680px; height: 240px;
-  --dx: -44px; --dy: -28px;
-  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.75), rgba(217, 231, 246, 0.3) 55%, rgba(255, 255, 255, 0) 74%);
-  filter: blur(32px);
-  opacity: 0.65;
+  width: 700px; height: 260px;
+  --dx: -48px; --dy: -30px;
+  background: radial-gradient(closest-side, rgba(243, 199, 181, 0.72), rgba(243, 199, 181, 0) 74%);
+  filter: blur(34px);
+  opacity: 0.8;
 }
 .althio-hero .cloudw.c .cloud {
-  width: 400px; height: 150px;
-  --dx: 18px; --dy: 13px;
-  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0) 70%);
-  filter: blur(22px);
-  opacity: 0.55;
+  width: 420px; height: 170px;
+  --dx: 22px; --dy: 15px;
+  background: radial-gradient(closest-side, rgba(185, 180, 222, 0.68), rgba(185, 180, 222, 0) 72%);
+  filter: blur(24px);
+  opacity: 0.75;
 }
 @keyframes althio-hero-drift {
   from { transform: translate3d(0, 0, 0); }
