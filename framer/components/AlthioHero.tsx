@@ -1,5 +1,5 @@
 import { addPropertyControls, ControlType, useIsStaticRenderer } from "framer"
-import { useMemo, type CSSProperties } from "react"
+import { useEffect, useMemo, useRef, type CSSProperties } from "react"
 
 /**
  * Splits text into words of individually indexed characters. Words stay whole
@@ -56,7 +56,57 @@ const CSS = `
     var(--cream);
 }
 .althio-hero *, .althio-hero *::before, .althio-hero *::after { margin: 0; padding: 0; box-sizing: border-box; }
-.althio-hero .wrap { max-width: 1120px; margin: 0 auto; padding: 0 28px; }
+.althio-hero .wrap { max-width: 1120px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+
+/* ------------------------------------------------------- parallax clouds
+   Three soft cloud layers behind the headline. Each trails the pointer at
+   its own depth (--dx/--dy) with a long ease, and drifts slowly on its
+   own, so the sky feels alive even before the cursor moves. */
+.althio-hero .clouds {
+  position: absolute; inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.althio-hero .cloudw { position: absolute; }
+.althio-hero .cloudw.a { top: 14%; left: 4%; animation: althio-hero-drift 46s ease-in-out infinite alternate; }
+.althio-hero .cloudw.b { top: 56%; right: -4%; animation: althio-hero-drift 62s ease-in-out infinite alternate-reverse; }
+.althio-hero .cloudw.c { top: 30%; left: 56%; animation: althio-hero-drift 54s ease-in-out infinite alternate; animation-delay: -20s; }
+.althio-hero .cloud {
+  display: block;
+  border-radius: 50%;
+  will-change: transform;
+  transition: transform 1.4s cubic-bezier(.22,.61,.36,1);
+  transform: translate3d(
+    calc(var(--mx, 0) * var(--dx, 0px)),
+    calc(var(--my, 0) * var(--dy, 0px)),
+    0
+  );
+}
+.althio-hero .cloudw.a .cloud {
+  width: 540px; height: 190px;
+  --dx: 30px; --dy: 20px;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 72%);
+  filter: blur(26px);
+  opacity: 0.8;
+}
+.althio-hero .cloudw.b .cloud {
+  width: 680px; height: 240px;
+  --dx: -44px; --dy: -28px;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.75), rgba(217, 231, 246, 0.3) 55%, rgba(255, 255, 255, 0) 74%);
+  filter: blur(32px);
+  opacity: 0.65;
+}
+.althio-hero .cloudw.c .cloud {
+  width: 400px; height: 150px;
+  --dx: 18px; --dy: 13px;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0) 70%);
+  filter: blur(22px);
+  opacity: 0.55;
+}
+@keyframes althio-hero-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(34px, -16px, 0); }
+}
 
 /* Announcement pill: a bordered chip, the headline of the post, and an arrow. */
 .althio-hero .pill {
@@ -210,6 +260,8 @@ const CSS = `
   }
   .althio-hero .btn, .althio-hero .btn::before,
   .althio-hero .pill, .althio-hero .pill .chev { transition: none; }
+  .althio-hero .cloudw { animation: none; }
+  .althio-hero .cloud { transition: none; transform: none; }
   .althio-hero .btn:hover { transform: none; }
   .althio-hero .btn:hover::before { transform: translateX(-120%); }
   .althio-hero .pill:hover .chev { transform: none; }
@@ -308,7 +360,43 @@ export default function AlthioHero(props: AlthioHeroProps) {
     // The static render has no animation to play, and a headline held at
     // opacity 0 by fill:both would be an invisible headline in the export.
     const isStatic = useIsStaticRenderer()
+    const rootRef = useRef<HTMLElement>(null)
     const leadWords = useMemo(() => splitLetters(headlineLead), [headlineLead])
+
+    // Cursor parallax for the clouds: normalized pointer position lands in
+    // --mx/--my; each layer multiplies it by its own depth. Mouse only.
+    useEffect(() => {
+        if (isStatic || typeof window === "undefined") return
+        if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+        const root = rootRef.current
+        if (!root) return
+        const controller = new AbortController()
+        const { signal } = controller
+        // Viewport coordinates, not the element's rect: Framer can collapse
+        // the header's own box to a sliver, which would blow the multiplier
+        // far past "subtle". The hero fills the first viewport anyway.
+        const clamp = (value: number) => Math.max(-1, Math.min(1, value))
+        root.addEventListener(
+            "pointermove",
+            (event) => {
+                const mx = clamp((event.clientX / window.innerWidth - 0.5) * 2)
+                const my = clamp((event.clientY / window.innerHeight - 0.5) * 2)
+                root.style.setProperty("--mx", mx.toFixed(3))
+                root.style.setProperty("--my", my.toFixed(3))
+            },
+            { signal }
+        )
+        root.addEventListener(
+            "pointerleave",
+            () => {
+                root.style.setProperty("--mx", "0")
+                root.style.setProperty("--my", "0")
+            },
+            { signal }
+        )
+        return () => controller.abort()
+    }, [isStatic])
     const letterCount = useMemo(
         () => leadWords.reduce((total, word) => total + word.chars.length, 0),
         [leadWords]
@@ -316,12 +404,18 @@ export default function AlthioHero(props: AlthioHeroProps) {
 
     return (
         <header
+            ref={rootRef}
             className={`althio-hero${isStatic ? "" : " play"}`}
             style={
                 { "--n": letterCount, ...props.style } as CSSProperties
             }
         >
             <style dangerouslySetInnerHTML={{ __html: CSS }} />
+            <div className="clouds" aria-hidden="true">
+                <span className="cloudw a"><span className="cloud" /></span>
+                <span className="cloudw b"><span className="cloud" /></span>
+                <span className="cloudw c"><span className="cloud" /></span>
+            </div>
             <div className="wrap">
                 {showPill && (
                     <a className="pill" href={pillLink}>
