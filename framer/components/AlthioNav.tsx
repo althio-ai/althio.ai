@@ -313,9 +313,15 @@ export default function AlthioNav(props: AlthioNavProps) {
                                 aria-hidden="true"
                                 focusable="false"
                             >
+                                {/* Stroking the filled outline thickens every
+                                    letter stroke by ~12 units without redrawing
+                                    the glyphs; round joins keep corners soft. */}
                                 <path
                                     fillRule="evenodd"
                                     clipRule="evenodd"
+                                    stroke="currentColor"
+                                    strokeWidth={12}
+                                    strokeLinejoin="round"
                                     d={WORDMARK}
                                 />
                             </svg>
