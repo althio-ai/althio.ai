@@ -35,7 +35,7 @@ const CSS = `
 .althio-404 .screen::after {
   content: "";
   position: absolute; inset: 0;
-  background: radial-gradient(66% 56% at 50% 46%, rgba(26,36,56,0.44) 0%, rgba(26,36,56,0.2) 60%, rgba(26,36,56,0) 84%);
+  background: radial-gradient(66% 56% at 50% 46%, rgba(26,36,56,0.56) 0%, rgba(26,36,56,0.32) 60%, rgba(26,36,56,0) 86%);
 }
 .althio-404 .inner {
   position: relative; z-index: 1;

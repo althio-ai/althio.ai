@@ -58,7 +58,7 @@ const CSS = `
   transition-delay: 0ms;
 }
 
-.althio-demo .intro h2 {
+.althio-demo .intro h1 {
   font-family: var(--display);
   font-size: clamp(30px, 4.6vw, 50px);
   font-weight: 500; letter-spacing: -0.02em; line-height: 1.14;
@@ -220,7 +220,7 @@ const CSS = `
 @media (min-width: 1200px) {
   .althio-demo { font-size: 1.181vw; }
   .althio-demo .stage { max-width: 52.778vw; padding: 8.333vw 1.944vw 9.028vw; }
-  .althio-demo .intro h2 { font-size: 3.472vw; }
+  .althio-demo .intro h1 { font-size: 3.472vw; }
   .althio-demo .intro p { margin-top: 1.389vw; }
   .althio-demo .step .q { font-size: 2.778vw; }
   .althio-demo .step .hint { margin-top: 0.694vw; font-size: 1.042vw; }
@@ -390,7 +390,7 @@ export default function AlthioDemoFlow(props: AlthioDemoFlowProps) {
             <div className="stage">
                 {phase === "intro" && (
                     <div className="intro">
-                        <h2 className={fxClass}>{heading}</h2>
+                        <h1 className={fxClass}>{heading}</h1>
                         <p
                             className={fxClass}
                             style={{ "--d": "420ms" } as CSSProperties}

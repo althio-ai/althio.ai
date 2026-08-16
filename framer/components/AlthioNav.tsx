@@ -48,9 +48,11 @@ const CSS = `
 .althio-nav nav::before {
   content: "";
   position: absolute; inset: 0; z-index: -1;
-  background: rgba(251, 247, 240, 0.42);
-  -webkit-backdrop-filter: blur(16px) saturate(1.5);
-  backdrop-filter: blur(16px) saturate(1.5);
+  /* brightness() lifts dark content behind the bar, so ink links stay
+     readable over the night scenes without giving up the transparency. */
+  background: rgba(251, 247, 240, 0.52);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4) brightness(1.16);
+  backdrop-filter: blur(20px) saturate(1.4) brightness(1.16);
   opacity: 0;
   transition: opacity .3s;
 }

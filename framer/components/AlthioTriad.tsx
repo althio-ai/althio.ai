@@ -56,7 +56,9 @@ const CSS = `
   stroke-width: 26;
   pointer-events: stroke;
   cursor: pointer;
+  outline: none;
 }
+.althio-triad .hit:focus-visible { outline: 2px solid rgba(35, 32, 28, 0.5); outline-offset: -8px; }
 /* Nodes are small marks, like the lights on the night band's week thread.
    The humans are hairline circles; Althio is the solid ink dot. */
 .althio-triad .node .pt {
@@ -570,7 +572,11 @@ export default function AlthioTriad(props: AlthioTriadProps) {
                                     key={"h" + index}
                                     className="hit"
                                     d={edge.d}
+                                    tabIndex={0}
+                                    role="button"
+                                    aria-label={`${CONTENT[edge.key].eyebrow}: ${CONTENT[edge.key].heading}`}
                                     onMouseEnter={enter(edge.key)}
+                                    onFocus={enter(edge.key)}
                                     onClick={enter(edge.key)}
                                 />
                             ))}
