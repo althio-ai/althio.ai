@@ -59,26 +59,27 @@ const CSS = `
 }
 .althio-triad .node circle {
   fill: #FFFFFF;
-  stroke: var(--ink);
-  stroke-width: 1.6;
-  transition: opacity .35s ease, stroke-width .35s ease;
+  stroke: rgba(35, 32, 28, 0.55);
+  stroke-width: 1.2;
+  transition: opacity .35s ease, stroke .35s ease;
   cursor: pointer;
 }
 .althio-triad .node text {
   font-family: var(--sans);
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 500;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.14em;
   fill: var(--ink-soft);
   text-anchor: middle;
   text-transform: uppercase;
   transition: fill .35s ease;
   pointer-events: none;
 }
-.althio-triad .dim { opacity: 0.16; }
-.althio-triad .lit.edge { stroke-width: 2.75; }
-.althio-triad .node.lit circle { stroke-width: 2.2; }
+.althio-triad .dim { opacity: 0.14; }
+.althio-triad .lit.edge { stroke-width: 2.5; }
+.althio-triad .node.lit circle { stroke: var(--ink); }
 .althio-triad .node.lit text { fill: var(--ink); }
+.althio-triad .flow { pointer-events: none; }
 
 /* The arcs draw themselves in when the section arrives. */
 .althio-triad.play .edge {
@@ -166,6 +167,7 @@ const CSS = `
   .althio-triad.play .marks { opacity: 1; transition: none; }
   .althio-triad .panel .view { animation: none; }
   .althio-triad .legend button { transition: color .25s ease; }
+  .althio-triad .flow { display: none; }
 }
 
 @media (max-width: 1199px) {
@@ -203,11 +205,11 @@ const CSS = `
 
 /* Brand-muted tones for the five relationships. */
 const TONE = {
-    checkin: "#7A9ED0",
-    session: "rgba(35, 32, 28, 0.45)",
-    brief: "#D9A08F",
-    careplan: "#BA9D5F",
-    memory: "#A49BD6",
+    checkin: "#8FADD6",
+    session: "rgba(35, 32, 28, 0.38)",
+    brief: "#DFA795",
+    careplan: "#C9AF7C",
+    memory: "#ADA5DC",
 }
 
 type Key =
@@ -286,26 +288,19 @@ const EDGE_NODES: Record<string, Key[]> = {
     memory: ["althio"],
 }
 
-const EDGES: { key: Key; d: string; index: number }[] = [
-    // Client <-> Althio, both directions
-    { key: "checkin", d: "M 322 106 Q 448 208 468 358", index: 0 },
-    { key: "checkin", d: "M 452 366 Q 404 232 312 112", index: 1 },
-    // Client <-> Clinician
-    { key: "session", d: "M 278 106 Q 152 208 132 358", index: 2 },
-    { key: "session", d: "M 148 366 Q 196 232 288 112", index: 3 },
-    // Althio -> Clinician, the brief
-    { key: "brief", d: "M 448 380 Q 300 322 152 380", index: 4 },
-    // Clinician -> Althio, the care plan (a pair, like the reference)
-    { key: "careplan", d: "M 152 418 Q 300 484 448 418", index: 5 },
-    { key: "careplan", d: "M 148 428 Q 300 512 452 428", index: 6 },
-    // Althio remembering, the self loop
-    { key: "memory", d: "M 516 380 C 596 344 596 448 518 414", index: 7 },
+/* One line per relationship. Mutual channels carry a head at both ends. */
+const EDGES: { key: Key; d: string; index: number; both?: boolean }[] = [
+    { key: "session", d: "M 256 124 Q 158 194 148 300", index: 0, both: true },
+    { key: "checkin", d: "M 346 124 Q 444 194 454 300", index: 1, both: true },
+    { key: "brief", d: "M 398 340 Q 301 296 206 340", index: 2 },
+    { key: "careplan", d: "M 206 382 Q 301 428 398 382", index: 3 },
+    { key: "memory", d: "M 504 334 C 588 300 588 418 506 386", index: 4 },
 ]
 
-const NODES: { key: Key; cx: number; cy: number; label: string; ly: number }[] = [
-    { key: "client", cx: 300, cy: 78, label: "Client", ly: 30 },
-    { key: "clinician", cx: 118, cy: 396, label: "Clinician", ly: 452 },
-    { key: "althio", cx: 482, cy: 396, label: "Althio AI", ly: 452 },
+const NODES: { key: Key; cx: number; cy: number; label: string }[] = [
+    { key: "client", cx: 301, cy: 86, label: "Client" },
+    { key: "clinician", cx: 152, cy: 358, label: "Clinician" },
+    { key: "althio", cx: 452, cy: 358, label: "Althio AI" },
 ]
 
 interface AlthioTriadProps {
@@ -390,20 +385,28 @@ export default function AlthioTriad(props: AlthioTriadProps) {
                         style={{ "--i": 0 } as CSSProperties}
                         onMouseLeave={leave}
                     >
-                        <svg viewBox="60 10 540 480" role="img" aria-label="The care triad: client, clinician, and Althio AI, connected by channels of care">
+                        <svg viewBox="60 10 540 430" role="img" aria-label="The care triad: client, clinician, and Althio AI, connected by channels of care">
                             <defs>
                                 {Object.entries(TONE).map(([key, color]) => (
                                     <marker
                                         key={key}
                                         id={`triad-arw-${key}`}
                                         viewBox="0 0 10 10"
-                                        refX="8"
+                                        refX="6.5"
                                         refY="5"
-                                        markerWidth="6.5"
-                                        markerHeight="6.5"
+                                        markerWidth="8"
+                                        markerHeight="8"
                                         orient="auto-start-reverse"
                                     >
-                                        <path d="M 0 1 L 9 5 L 0 9 z" fill={color} />
+                                        {/* An open chevron, not a filled triangle. */}
+                                        <path
+                                            d="M 1.5 1.8 L 7 5 L 1.5 8.2"
+                                            fill="none"
+                                            stroke={color}
+                                            strokeWidth="1.5"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
                                     </marker>
                                 ))}
                             </defs>
@@ -415,10 +418,30 @@ export default function AlthioTriad(props: AlthioTriadProps) {
                                         style={{ "--i": edge.index } as CSSProperties}
                                         d={edge.d}
                                         pathLength={1}
+                                        strokeLinecap="round"
                                         stroke={TONE[edge.key as keyof typeof TONE]}
                                         markerEnd={`url(#triad-arw-${edge.key})`}
+                                        markerStart={
+                                            edge.both
+                                                ? `url(#triad-arw-${edge.key})`
+                                                : undefined
+                                        }
                                     />
                                 ))}
+                                {/* On an active line, a small light travels it. */}
+                                {!isNode && active !== "default" ? (
+                                    <circle
+                                        className="flow"
+                                        r="3"
+                                        fill={TONE[active as keyof typeof TONE]}
+                                    >
+                                        <animateMotion
+                                            dur="2.6s"
+                                            repeatCount="indefinite"
+                                            path={EDGES.find((edge) => edge.key === active)?.d}
+                                        />
+                                    </circle>
+                                ) : null}
                             </g>
                             {EDGES.map((edge, index) => (
                                 <path
@@ -436,8 +459,8 @@ export default function AlthioTriad(props: AlthioTriadProps) {
                                     onMouseEnter={enter(node.key)}
                                     onClick={enter(node.key)}
                                 >
-                                    <circle cx={node.cx} cy={node.cy} r="32" />
-                                    <text x={node.cx} y={node.ly}>{node.label}</text>
+                                    <circle cx={node.cx} cy={node.cy} r="52" />
+                                    <text x={node.cx} y={node.cy + 4}>{node.label}</text>
                                 </g>
                             ))}
                         </svg>
