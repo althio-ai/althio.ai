@@ -70,17 +70,9 @@ const CSS = `
   border: 1px solid var(--line);
   border-radius: 24px;
   padding: 28px 30px 24px;
-  box-shadow:
-    0 1px 2px rgba(35, 32, 28, 0.06),
-    0 24px 60px -36px rgba(35, 32, 28, 0.32);
   transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transition: transform .5s cubic-bezier(.22,.9,.3,1), box-shadow .5s cubic-bezier(.22,.9,.3,1);
+  transition: transform .5s cubic-bezier(.22,.9,.3,1);
   will-change: transform;
-}
-.althio-brief .deck:hover .card {
-  box-shadow:
-    0 1px 2px rgba(35, 32, 28, 0.06),
-    0 34px 80px -36px rgba(35, 32, 28, 0.4);
 }
 .althio-brief .doclabel {
   display: flex; align-items: center; justify-content: space-between;

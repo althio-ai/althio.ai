@@ -48,7 +48,7 @@ const CSS = `
 .althio-nav nav::before {
   content: "";
   position: absolute; inset: 0; z-index: -1;
-  background: rgba(251, 247, 240, 0.68);
+  background: rgba(251, 247, 240, 0.42);
   -webkit-backdrop-filter: blur(16px) saturate(1.5);
   backdrop-filter: blur(16px) saturate(1.5);
   opacity: 0;
@@ -88,8 +88,7 @@ const CSS = `
   padding: 9px 18px; border-radius: 999px;
   text-decoration: none; border: none; cursor: pointer;
   overflow: hidden; isolation: isolate;
-  box-shadow: 0 1px 2px rgba(35, 32, 28, 0.12);
-  transition: transform .35s cubic-bezier(.22,.9,.3,1), box-shadow .35s cubic-bezier(.22,.9,.3,1);
+  transition: transform .35s cubic-bezier(.22,.9,.3,1);
 }
 /* A slow band of light crosses the surface, like sun moving over the panel. */
 .althio-nav .btn::before {

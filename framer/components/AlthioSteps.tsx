@@ -138,7 +138,6 @@ const CSS = `
   border: 1px solid var(--line);
   border-radius: 20px 20px 20px 6px;
   padding: 16px 18px 14px;
-  box-shadow: 0 20px 44px -30px rgba(35, 32, 28, 0.4);
   transform: rotate(-0.6deg);
 }
 .althio-steps .bubble .msg {
@@ -169,7 +168,6 @@ const CSS = `
   padding: 7px 14px;
   font-size: 13px;
   color: var(--ink);
-  box-shadow: 0 10px 24px -20px rgba(35, 32, 28, 0.4);
 }
 .althio-steps .pchip .swatch {
   width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
@@ -183,7 +181,6 @@ const CSS = `
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 16px 18px;
-  box-shadow: 0 20px 44px -30px rgba(35, 32, 28, 0.4);
   transform: rotate(0.5deg);
 }
 .althio-steps .briefline .top {

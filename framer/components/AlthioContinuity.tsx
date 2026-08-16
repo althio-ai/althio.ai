@@ -2,7 +2,7 @@ import { addPropertyControls, ControlType, useIsStaticRenderer } from "framer"
 import { useEffect, useRef, useState, type CSSProperties } from "react"
 
 const SKY_3AM =
-    "https://framerusercontent.com/images/oVUsSNnxV8GbbChzWsOAN26pOU.jpg"
+    "https://framerusercontent.com/images/5xaPqhUrhIYNjUEawoV6G6PTQ.png"
 
 const CSS = `
 /* Open Runde — Laurids Kern, SIL Open Font License 1.1 */
@@ -33,13 +33,63 @@ const CSS = `
 /* The night itself, drifting almost imperceptibly. */
 .althio-continuity .sky {
   position: absolute; inset: -6%;
-  background: url("${SKY_3AM}") center 30% / cover no-repeat;
+  background: url("${SKY_3AM}") center bottom / cover no-repeat;
   animation: althio-cont-ken 44s ease-in-out infinite alternate;
 }
 .althio-continuity .scrim {
   position: absolute; inset: 0;
   background:
-    linear-gradient(180deg, rgba(8, 10, 22, 0.62) 0%, rgba(8, 10, 22, 0.28) 40%, rgba(8, 10, 22, 0.66) 100%);
+    linear-gradient(180deg, rgba(8, 10, 22, 0.55) 0%, rgba(8, 10, 22, 0.18) 42%, rgba(8, 10, 22, 0.58) 100%);
+}
+
+/* Two extra star fields drifting at different depths above the photograph. */
+.althio-continuity .stars {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 38px 62px, rgba(255,255,255,0.85), transparent 100%),
+    radial-gradient(1px 1px at 176px 148px, rgba(255,255,255,0.6), transparent 100%),
+    radial-gradient(1.5px 1.5px at 296px 44px, rgba(255,255,255,0.75), transparent 100%),
+    radial-gradient(1px 1px at 430px 210px, rgba(255,255,255,0.55), transparent 100%),
+    radial-gradient(1px 1px at 108px 300px, rgba(255,255,255,0.7), transparent 100%),
+    radial-gradient(1.5px 1.5px at 372px 330px, rgba(255,255,255,0.5), transparent 100%);
+  background-repeat: repeat;
+  background-size: 520px 380px;
+  opacity: 0.7;
+  animation: althio-cont-drift 180s linear infinite;
+}
+.althio-continuity .stars.b {
+  background-size: 840px 620px;
+  opacity: 0.45;
+  animation-duration: 300s;
+  animation-direction: reverse;
+}
+@keyframes althio-cont-drift {
+  from { background-position: 0 0; }
+  to { background-position: 520px -380px; }
+}
+
+/* Every now and then, a meteor. */
+.althio-continuity .meteor {
+  position: absolute;
+  top: 16%; left: 4%;
+  width: 110px; height: 1.5px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9));
+  opacity: 0;
+  animation: althio-cont-meteor 13s linear infinite;
+  animation-delay: 4s;
+}
+.althio-continuity .meteor.two {
+  top: 8%; left: 52%;
+  width: 84px;
+  animation-duration: 17s;
+  animation-delay: 11s;
+}
+@keyframes althio-cont-meteor {
+  0% { transform: translate3d(0, 0, 0) rotate(18deg); opacity: 0; }
+  1.2% { opacity: 0.9; }
+  5.5% { transform: translate3d(34vw, 11vw, 0) rotate(18deg); opacity: 0; }
+  100% { transform: translate3d(34vw, 11vw, 0) rotate(18deg); opacity: 0; }
 }
 /* Cream bleeds in at both edges so the band sits inside the page quietly. */
 .althio-continuity .edge {
@@ -86,6 +136,22 @@ const CSS = `
   position: absolute; left: 3%; right: 3%; top: 10px;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(237, 241, 250, 0.35) 12%, rgba(237, 241, 250, 0.35) 88%, transparent);
+}
+/* A small light carries the thread through the week, session to Sunday. */
+.althio-continuity .thread::after {
+  content: "";
+  position: absolute; top: -2px; left: 3%;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.55);
+  opacity: 0;
+  animation: althio-cont-carry 8s ease-in-out infinite;
+}
+@keyframes althio-cont-carry {
+  0% { left: 3%; opacity: 0; }
+  10% { opacity: 0.9; }
+  88% { opacity: 0.9; }
+  100% { left: 96%; opacity: 0; }
 }
 .althio-continuity .days {
   position: relative;
@@ -157,7 +223,10 @@ const CSS = `
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .althio-continuity .sky, .althio-continuity .day .pt { animation: none; }
+  .althio-continuity .sky, .althio-continuity .day .pt,
+  .althio-continuity .stars, .althio-continuity .meteor,
+  .althio-continuity .thread::after { animation: none; }
+  .althio-continuity .meteor, .althio-continuity .thread::after { display: none; }
   .althio-continuity.play .rv { opacity: 1; transform: none; filter: none; transition: none; }
 }
 
@@ -265,6 +334,10 @@ export default function AlthioContinuity(props: AlthioContinuityProps) {
             <style dangerouslySetInnerHTML={{ __html: CSS }} />
             <div className="sky" aria-hidden="true" />
             <div className="scrim" aria-hidden="true" />
+            <div className="stars" aria-hidden="true" />
+            <div className="stars b" aria-hidden="true" />
+            <span className="meteor" aria-hidden="true" />
+            <span className="meteor two" aria-hidden="true" />
             <div className="edge top" aria-hidden="true" />
             <div className="edge bottom" aria-hidden="true" />
             <div className="wrap">

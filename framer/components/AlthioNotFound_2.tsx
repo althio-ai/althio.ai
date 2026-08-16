@@ -80,7 +80,6 @@ const CSS = `
   text-decoration: none; cursor: pointer;
   background: var(--ink); color: var(--cream);
   border: 1px solid transparent;
-  box-shadow: 0 1px 3px rgba(24, 34, 54, 0.22);
   transition: opacity .25s ease;
 }
 .althio-404 .btn.ghost {

@@ -156,7 +156,6 @@ const CSS = `
   padding: 9px 18px; border-radius: 999px;
   text-decoration: none; border: none; cursor: pointer;
   overflow: hidden; isolation: isolate;
-  box-shadow: 0 1px 2px rgba(35, 32, 28, 0.12);
   transition: transform .35s cubic-bezier(.22,.9,.3,1), opacity .25s ease;
 }
 /* A slow band of light crosses the surface, like sun moving over the panel. */

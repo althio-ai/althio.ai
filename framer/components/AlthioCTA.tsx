@@ -35,7 +35,6 @@ const CSS = `
   border-radius: 32px; overflow: hidden;
   padding: clamp(70px, 10vw, 130px) 28px;
   text-align: center;
-  box-shadow: 0 30px 80px -40px rgba(35, 32, 28, 0.35);
 }
 .althio-cta .panel .sky {
   position: absolute; inset: -6%;
@@ -61,8 +60,7 @@ const CSS = `
   padding: 9px 18px; border-radius: 999px;
   text-decoration: none; border: none; cursor: pointer;
   overflow: hidden; isolation: isolate;
-  box-shadow: 0 1px 2px rgba(35, 32, 28, 0.12);
-  transition: transform .35s cubic-bezier(.22,.9,.3,1), box-shadow .35s cubic-bezier(.22,.9,.3,1);
+  transition: transform .35s cubic-bezier(.22,.9,.3,1);
 }
 .althio-cta .btn::before {
   content: "";
@@ -72,7 +70,7 @@ const CSS = `
   transition: transform .7s cubic-bezier(.3,.8,.3,1);
   z-index: -1;
 }
-.althio-cta .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -12px rgba(35,32,28,0.45); }
+.althio-cta .btn:hover { transform: translateY(-1px); }
 .althio-cta .btn:hover::before { transform: translateX(120%); }
 .althio-cta .btn:active { transform: scale(0.98); transition-duration: .1s; }
 .althio-cta .btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
