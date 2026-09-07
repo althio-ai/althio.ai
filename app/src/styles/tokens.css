@@ -1,0 +1,135 @@
+/* Althio design tokens — extracted from althio.ai (2026-08-16) */
+
+@font-face {
+  font-family: "Open Runde";
+  src: url("https://cdn.jsdelivr.net/gh/lauridskern/open-runde@1.0.1/src/web/OpenRunde-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Open Runde";
+  src: url("https://cdn.jsdelivr.net/gh/lauridskern/open-runde@1.0.1/src/web/OpenRunde-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Open Runde";
+  src: url("https://cdn.jsdelivr.net/gh/lauridskern/open-runde@1.0.1/src/web/OpenRunde-Semibold.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Open Runde";
+  src: url("https://cdn.jsdelivr.net/gh/lauridskern/open-runde@1.0.1/src/web/OpenRunde-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+:root {
+  /* Type families */
+  --font-serif: Charter, "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --font-sans: "Open Runde", -apple-system, "system-ui", "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, monospace;  /* Inferred: site has no code text */
+
+  /* Core neutrals */
+  --color-paper: #fbf7f0;        /* page background */
+  --color-ink: #23201c;          /* primary text, dark surfaces */
+  --color-ink-72: rgba(35, 32, 28, 0.72);
+  --color-ink-60: rgba(35, 32, 28, 0.6);   /* secondary text */
+  --color-ink-34: rgba(35, 32, 28, 0.34);  /* muted text, hairlines */
+  --color-night: #0b0f1e;        /* dark "night" section background */
+  --color-frost: #edf1fa;        /* light text on dark surfaces */
+  --color-white: #ffffff;
+
+  /* Pastel accents */
+  --color-sky: #7a9ed0;
+  --color-sky-soft: #a8c6e8;
+  --color-sky-mid: #8fadd6;
+  --color-lavender: #b9b4de;
+  --color-lavender-mid: #ada5dc;
+  --color-clay: #d9a08f;
+  --color-clay-soft: #e8b7a6;
+  --color-gold: #c9af7c;
+
+  /* Gradients */
+  --gradient-aurora:
+    radial-gradient(44% 40% at 30% 20%, #d9e7f6 0%, transparent 100%),
+    radial-gradient(36% 34% at 74% 46%, #f6e0d8 0%, transparent 100%),
+    radial-gradient(30% 30% at 55% 10%, #e5e3f2 0%, transparent 100%);
+  --gradient-accent-text: linear-gradient(100deg, #5b9be6, #a9c4ee 45%, #6fa5e8);
+  --gradient-night-veil: linear-gradient(rgba(8, 10, 22, 0.55) 0%, rgba(8, 10, 22, 0.18) 42%, rgba(8, 10, 22, 0.58) 100%);
+  --gradient-hairline: linear-gradient(90deg, transparent, rgba(237, 241, 250, 0.35) 12%, rgba(237, 241, 250, 0.35) 88%, transparent);
+
+  /* Type scale v2 — Major Third (1.25) modular scale, base 16px, rem units.
+     Steps: 13 / 14 / 16 / 20 / 25 / 31 / 39 / 49 / 61 / 76.
+     Desktop values; each display size carries a clamp() for fluid scaling. */
+  --text-display: clamp(2.5rem, 1.6rem + 2.5vw, 4.75rem);  /* 40->76px; serif 500, lh 1.1, ls -0.025em */
+  --text-h1-sub: clamp(2.25rem, 1.5rem + 2vw, 3.8125rem);  /* 36->61px; subpage hero */
+  --text-h2: clamp(1.9375rem, 1.4rem + 1.3vw, 3.0625rem);  /* 31->49px; serif 500, lh 1.15, ls -0.02em */
+  --text-h3: clamp(1.5625rem, 1.2rem + 0.9vw, 2.4375rem);  /* 25->39px; serif 500, lh 1.2, ls -0.02em */
+  --text-h4: 1.9375rem;   /* 31px; serif 500, lh 1.25, ls -0.015em */
+  --text-pull: 1.5625rem; /* 25px; serif 400 italic, lh 1.35 */
+  --text-h5: 1.25rem;     /* 20px; serif 600, lh 1.4, ls -0.01em */
+  --text-lead: 1.25rem;   /* 20px; sans 400, lh 1.5 */
+  --text-body: 1rem;      /* 16px; sans 400, lh 1.6 */
+  --text-sm: 0.875rem;    /* 14px; sans: nav/buttons 500, small copy 400; lh 1.55 */
+  --text-h6: 0.875rem;    /* 14px; sans 600, lh 1.55; smallest heading (Inferred) */
+  --text-caption: 0.8125rem; /* 13px; sans 400, lh 1.5; eyebrow: 500, caps, ls 0.14em */
+  --text-code: 0.875rem;  /* 14px; mono 400, lh 1.6 (Inferred) */
+
+  /* Deprecated v1 aliases — migrate, then remove */
+  --text-h2-alt: var(--text-h3);
+  --text-body-sm: var(--text-body);
+  --text-ui: var(--text-sm);
+  --text-button: var(--text-sm);
+  --text-eyebrow: var(--text-caption);
+  --text-micro: var(--text-caption);
+
+  /* Radii */
+  --radius-pill: 999px;   /* buttons, chips */
+  --radius-card: 28px;    /* large cards */
+  --radius-panel: 18px;   /* inner panels; chat bubble: 18px 18px 18px 5px */
+  --radius-tile: 14px;    /* small tiles */
+
+  /* Shadows */
+  --shadow-frost-glow: rgba(237, 241, 250, 0.45) 0 0 8px 0;
+  --shadow-focus-ring: rgba(122, 158, 208, 0.38) 0 0 0 1.25px;
+  --shadow-halo: rgba(255, 255, 255, 0.14) 0 0 0 5px, rgba(255, 255, 255, 0.65) 0 0 18px 0;
+
+  /* Spacing — 4px base scale (site values cluster on it; normalized to the 1440 design size) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* Layout (desktop 1440 reference) */
+  --container-max: 1120px;  /* main content column */
+  --prose-max: 760px;       /* long-form text measure */
+  --section-pad-y: 130px;   /* between major sections; range 96-170px on the site */
+  --page-pad-x: 40px;
+
+  /* Motion */
+  --ease-gentle: cubic-bezier(0.22, 0.9, 0.3, 1);  /* the site's signature curve */
+  --duration-fast: 200ms;   /* color, opacity */
+  --duration-base: 250ms;   /* borders, small moves */
+  --duration-slow: 350ms;   /* transform, reveals */
+
+  /* Semantic aliases — use these in application code, not the primitives above */
+  --text-primary: var(--color-ink);
+  --text-secondary: var(--color-ink-60);   /* large or secondary text only (4.2:1 on paper) */
+  --text-muted: var(--color-ink-34);       /* decorative labels, never body copy */
+  --text-on-dark: var(--color-frost);
+  --surface-page: var(--color-paper);
+  --surface-card: rgba(255, 255, 255, 0.72);
+  --surface-dark: var(--color-night);
+  --border-hairline: rgba(35, 32, 28, 0.08);
+  --border-strong: rgba(35, 32, 28, 0.15);
+}
