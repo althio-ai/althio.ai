@@ -7,6 +7,7 @@ import { hrefFor } from "../router";
 interface Props {
   plan: ImportPlan;
   overrides: Map<string, RowAction>;
+  edited: Map<string, Set<number>>;
   onOverride: (key: string, action: RowAction) => void;
   onEditCell: (fileIndex: number, rowIndex: number, columnIndex: number, value: string) => void;
   onBack: () => void;
@@ -22,7 +23,7 @@ const ACTION_LABELS: Record<RowAction, string> = {
 
 type Filter = RowAction | "all" | "review";
 
-export function PreviewStep({ plan, overrides, onOverride, onEditCell, onBack, onCommit }: Props) {
+export function PreviewStep({ plan, overrides, edited, onOverride, onEditCell, onBack, onCommit }: Props) {
   const [filter, setFilter] = useState<Filter>("all");
   const summary = useMemo(() => summarizePlan(plan, overrides), [plan, overrides]);
   const rows = useMemo(
@@ -102,7 +103,16 @@ export function PreviewStep({ plan, overrides, onOverride, onEditCell, onBack, o
                 </td>
               </tr>
             ) : (
-              rows.map((row) => <PreviewRow key={row.key} row={row} action={effectiveAction(row, overrides)} onOverride={onOverride} onEditCell={onEditCell} />)
+              rows.map((row) => (
+                <PreviewRow
+                  key={row.key}
+                  row={row}
+                  action={effectiveAction(row, overrides)}
+                  editedColumns={edited.get(row.key)}
+                  onOverride={onOverride}
+                  onEditCell={onEditCell}
+                />
+              ))
             )}
           </tbody>
         </table>
@@ -132,13 +142,32 @@ function Tile({ count, label }: { count: number; label: string }) {
 interface RowProps {
   row: PlannedRow;
   action: RowAction;
+  editedColumns: Set<number> | undefined;
   onOverride: (key: string, action: RowAction) => void;
   onEditCell: (fileIndex: number, rowIndex: number, columnIndex: number, value: string) => void;
 }
 
-function PreviewRow({ row, action, onOverride, onEditCell }: RowProps) {
+/**
+ * Columns to offer for inline correction: every column named in an error, the
+ * first column when an error names none, and any cell the user already edited
+ * (so the input does not vanish the moment the row becomes valid).
+ */
+function editableColumns(row: PlannedRow, editedColumns: Set<number> | undefined): number[] {
+  const columns = new Set<number>(editedColumns ?? []);
+  if (row.errors.length > 0) {
+    const named = row.errors.map((e) => e.column).filter((c): c is string => c !== undefined);
+    for (const name of named) {
+      const index = row.headers.indexOf(name);
+      if (index >= 0) columns.add(index);
+    }
+    if (named.length === 0) columns.add(0);
+  }
+  return [...columns].sort((a, b) => a - b);
+}
+
+function PreviewRow({ row, action, editedColumns, onOverride, onEditCell }: RowProps) {
   const [fileIndex, rowIndex] = row.key.split(":").map(Number) as [number, number];
-  const errorColumns = new Set(row.errors.map((e) => e.column).filter(Boolean));
+  const editable = editableColumns(row, editedColumns);
   return (
     <tr>
       <td>
@@ -182,17 +211,21 @@ function PreviewRow({ row, action, onOverride, onEditCell }: RowProps) {
         ) : null}
       </td>
       <td>
-        {action === "error" ? (
+        {editable.length > 0 ? (
           <div className="stack" style={{ gap: 4 }}>
-            {row.headers.map((header, columnIndex) => {
-              const flagged = errorColumns.has(header) || (errorColumns.size === 0 && row.errors.length > 0 && columnIndex === 0);
-              if (!flagged) return null;
+            {editable.map((columnIndex) => {
+              const header = row.headers[columnIndex] ?? `Column ${columnIndex + 1}`;
               return (
-                <label key={header} style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                <label key={columnIndex} style={{ display: "flex", gap: 6, alignItems: "center" }}>
                   <span className="muted" style={{ minWidth: 90 }}>
                     {header}
                   </span>
-                  <input className="inline-edit" value={row.raw[columnIndex] ?? ""} onChange={(e) => onEditCell(fileIndex, rowIndex, columnIndex, e.target.value)} />
+                  <input
+                    className="inline-edit"
+                    aria-label={`${header}, line ${row.line}`}
+                    value={row.raw[columnIndex] ?? ""}
+                    onChange={(e) => onEditCell(fileIndex, rowIndex, columnIndex, e.target.value)}
+                  />
                 </label>
               );
             })}

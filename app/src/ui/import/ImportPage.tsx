@@ -54,6 +54,8 @@ export function ImportPage() {
   const [files, setFiles] = useState<LoadedFile[]>([]);
   const [dateFormat, setDateFormat] = useState<DateFormat>("auto");
   const [overrides, setOverrides] = useState<Map<string, RowAction>>(new Map());
+  /** Cells the user has edited inline, keyed by row key; they stay editable after the row becomes valid. */
+  const [edited, setEdited] = useState<Map<string, Set<number>>>(new Map());
   const [run, setRun] = useState<ImportRun | undefined>();
 
   const fileProblems = useMemo(
@@ -89,10 +91,17 @@ export function ImportPage() {
     setStep("upload");
     setFiles([]);
     setOverrides(new Map());
+    setEdited(new Map());
     setRun(undefined);
   };
 
   const editCell = (fileIndex: number, rowIndex: number, columnIndex: number, value: string) => {
+    setEdited((current) => {
+      const next = new Map(current);
+      const key = `${fileIndex}:${rowIndex}`;
+      next.set(key, new Set([...(current.get(key) ?? []), columnIndex]));
+      return next;
+    });
     setFiles((current) =>
       current.map((f, i) => {
         if (i !== fileIndex) return f;
@@ -158,6 +167,7 @@ export function ImportPage() {
         <PreviewStep
           plan={plan}
           overrides={overrides}
+          edited={edited}
           onOverride={(key, action) =>
             setOverrides((current) => {
               const next = new Map(current);
